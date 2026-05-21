@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { formatBRL } from "@/lib/products";
@@ -36,13 +37,12 @@ export default function CartDrawer() {
     discount,
     shipping,
     total,
-    clearCart,
   } = useCart();
-  const { loading: toastLoading, update, success } = useToast();
+  const { success } = useToast();
+  const router = useRouter();
 
   const [couponInput, setCouponInput] = useState("");
   const [couponError, setCouponError] = useState(false);
-  const [checkingOut, setCheckingOut] = useState(false);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,20 +58,9 @@ export default function CartDrawer() {
   };
 
   const handleCheckout = () => {
-    if (checkingOut || lines.length === 0) return;
-    setCheckingOut(true);
-    const id = toastLoading("Processando pedido…", "Aguarde alguns instantes");
-    setTimeout(() => {
-      update(id, {
-        variant: "success",
-        title: "Pedido confirmado!",
-        description: `Total ${formatBRL(total)} — você receberá um e-mail em breve.`,
-        duration: 5000,
-      });
-      clearCart();
-      closeCart();
-      setCheckingOut(false);
-    }, 1600);
+    if (lines.length === 0) return;
+    closeCart();
+    router.push("/checkout");
   };
 
   const installmentValue = total / 12;
@@ -364,21 +353,11 @@ export default function CartDrawer() {
                   <button
                     type="button"
                     onClick={handleCheckout}
-                    disabled={checkingOut}
-                    className="group relative mt-3 inline-flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-5 text-sm font-extrabold text-white shadow-[0_14px_30px_-12px_rgba(79,70,229,0.55)] transition-all hover:scale-[1.01] disabled:cursor-wait disabled:opacity-80 disabled:hover:scale-100"
+                    className="group relative mt-3 inline-flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-5 text-sm font-extrabold text-white shadow-[0_14px_30px_-12px_rgba(79,70,229,0.55)] transition-all hover:scale-[1.01]"
                   >
                     <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                    {checkingOut ? (
-                      <>
-                        <span className="relative inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white" />
-                        <span className="relative">Processando…</span>
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="relative h-4 w-4" />
-                        <span className="relative">Finalizar compra</span>
-                      </>
-                    )}
+                    <CreditCard className="relative h-4 w-4" />
+                    <span className="relative">Finalizar compra</span>
                   </button>
 
                   <div className="mt-2 flex items-center justify-between">

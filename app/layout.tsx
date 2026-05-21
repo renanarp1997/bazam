@@ -5,11 +5,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import QuickView from "@/components/QuickView";
+import LocationModal from "@/components/LocationModal";
 import Toaster from "@/components/Toaster";
 import { CartProvider } from "@/lib/cart-context";
 import { FavoritesProvider } from "@/lib/favorites-context";
 import { QuickViewProvider } from "@/lib/quickview-context";
 import { ToastProvider } from "@/lib/toast-context";
+import { LocationProvider } from "@/lib/location-context";
 
 export const metadata: Metadata = {
   title: "Bazam — Moda, tecnologia e estilo de vida",
@@ -35,19 +37,22 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-white font-sans">
         <ToastProvider>
-          <CartProvider>
-            <FavoritesProvider>
-              <QuickViewProvider>
-                <AnnouncementBar />
-                <Header />
-                <main>{children}</main>
-                <Footer />
-                <CartDrawer />
-                <QuickView />
-                <Toaster />
-              </QuickViewProvider>
-            </FavoritesProvider>
-          </CartProvider>
+          <LocationProvider>
+            <CartProvider>
+              <FavoritesProvider>
+                <QuickViewProvider>
+                  <AnnouncementBar />
+                  <Header />
+                  <main>{children}</main>
+                  <Footer />
+                  <CartDrawer />
+                  <QuickView />
+                  <LocationModal />
+                  <Toaster />
+                </QuickViewProvider>
+              </FavoritesProvider>
+            </CartProvider>
+          </LocationProvider>
         </ToastProvider>
       </body>
     </html>

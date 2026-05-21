@@ -33,7 +33,7 @@ const reviewsBreakdown = [
 
 export default function ProductDetail({ product }: { product: Product }) {
   const router = useRouter();
-  const { addProduct, openCart } = useCart();
+  const { addProduct } = useCart();
   const { has: isFavorite, toggle: toggleFavorite } = useFavorites();
   const { success, info, loading, update, dismiss, error: toastError } = useToast();
   const favored = isFavorite(product.id);
@@ -55,8 +55,8 @@ export default function ProductDetail({ product }: { product: Product }) {
 
   const handleBuyNow = () => {
     addProduct(product.id, qty);
-    success("Pronto para finalizar", "Itens disponíveis na sua sacola");
-    openCart();
+    success("Indo para o checkout", `${qty}× ${product.name}`);
+    router.push("/checkout");
   };
 
   const handleCepSubmit = (e: React.FormEvent) => {
@@ -113,8 +113,7 @@ export default function ProductDetail({ product }: { product: Product }) {
     }, 700);
   };
 
-  // router/dismiss reserved for future flows
-  void router;
+  // dismiss reserved for future flows
   void dismiss;
 
   const discount =

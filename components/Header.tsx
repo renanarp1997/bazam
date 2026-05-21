@@ -25,6 +25,7 @@ import { allProducts, categories, formatBRL } from "@/lib/products";
 import { matchesQuery, normalize } from "@/lib/search";
 import { useCart } from "@/lib/cart-context";
 import { useFavorites } from "@/lib/favorites-context";
+import { useLocation } from "@/lib/location-context";
 
 const navCategories = [
   { name: "Ofertas do dia", href: "/ofertas", hot: true, icon: Flame },
@@ -51,6 +52,7 @@ export default function Header() {
   const router = useRouter();
   const { openCart, itemsCount } = useCart();
   const { count: favCount } = useFavorites();
+  const { location, openModal: openLocation } = useLocation();
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const [query, setQuery] = useState("");
@@ -283,11 +285,21 @@ export default function Header() {
         </div>
 
         <div className="ml-auto flex items-center gap-1 lg:gap-1.5">
-          <button className="hidden items-center gap-2 rounded-xl px-3 py-1.5 text-xs text-ink-700 transition-colors hover:bg-ink-100 xl:inline-flex">
+          <button
+            type="button"
+            onClick={openLocation}
+            className="hidden items-center gap-2 rounded-xl px-3 py-1.5 text-xs text-ink-700 transition-colors hover:bg-ink-100 xl:inline-flex"
+          >
             <MapPin className="h-4 w-4 text-brand-600" />
             <span className="text-left leading-tight">
-              <span className="block text-[10px] text-ink-500">Entregar em</span>
-              <span className="block font-semibold text-ink-800">São Paulo, 01310</span>
+              <span className="block text-[10px] text-ink-500">
+                {location ? "Entregar em" : "Definir endereço"}
+              </span>
+              <span className="block max-w-[160px] truncate font-semibold text-ink-800">
+                {location
+                  ? `${location.city}${location.uf ? ", " + location.uf : ""}${location.cep ? " · " + location.cep : ""}`
+                  : "Onde você está?"}
+              </span>
             </span>
           </button>
 
