@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white text-ink-800 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    background-image:
+      radial-gradient(1200px 600px at 100% -10%, rgba(99, 102, 241, 0.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 120%, rgba(16, 185, 129, 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+  ::selection {
+    @apply bg-brand-200 text-brand-900;
+  }
+  h1, h2, h3, h4 {
+    font-family: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10 xl:px-14;
+  }
+
+  .section {
+    @apply mt-16 sm:mt-20;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-brand-700 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(79,70,229,0.55)] transition-all hover:from-brand-500 hover:to-brand-700 hover:shadow-[0_18px_36px_-12px_rgba(79,70,229,0.65)] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink-200 bg-white px-5 py-2.5 text-sm font-semibold text-ink-800 transition-all hover:border-ink-300 hover:bg-ink-50 hover:shadow-soft;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-ink-700 transition-colors hover:bg-ink-100 hover:text-ink-900;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-ink-100 px-2.5 py-1 text-[11px] font-semibold text-ink-700;
+  }
+
+  .badge-discount {
+    @apply inline-flex items-center rounded-md bg-gradient-to-br from-rose-500 to-rose-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-[0_4px_10px_-2px_rgba(244,63,94,0.45)];
+  }
+  .badge-new {
+    @apply inline-flex items-center rounded-md bg-gradient-to-br from-accent-500 to-accent-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-[0_4px_10px_-2px_rgba(16,185,129,0.45)];
+  }
+
+  .section-title {
+    @apply font-head text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl lg:text-[34px];
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em];
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 bg-clip-text text-transparent;
+  }
+
+  .glass {
+    @apply border border-white/15 bg-white/10 backdrop-blur-md;
+  }
+
+  .glass-dark {
+    @apply border border-white/10 bg-ink-950/40 backdrop-blur-md;
+  }
+
+  .ring-soft {
+    @apply ring-1 ring-ink-200/70;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Bazam signature glow */
+  .bazam-glow {
+    position: relative;
+  }
+  .bazam-glow::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.6), rgba(16,185,129,0.5), rgba(99,102,241,0));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  /* Dot pattern overlay (Bazam signature) */
+  .pattern-dots {
+    background-image: radial-gradient(rgba(15,23,42,0.08) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .pattern-dots-white {
+    background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* Shimmer */
+  .shimmer {
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%);
+    background-size: 200% 100%;
+    animation: shimmer 2.2s linear infinite;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-xl bg-ink-100;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.6s infinite;
+  }
+
+  /* Card lift hover effect */
+  .card-lift {
+    @apply transition-all duration-300 will-change-transform;
+  }
+  .card-lift:hover {
+    transform: translateY(-6px);
+    box-shadow:
+      0 30px 60px -25px rgba(15, 23, 42, 0.35),
+      0 12px 24px -10px rgba(79, 70, 229, 0.25);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .mask-fade-r {
+    -webkit-mask-image: linear-gradient(to right, #000 80%, transparent);
+            mask-image: linear-gradient(to right, #000 80%, transparent);
+  }
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+            mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  }
+}
