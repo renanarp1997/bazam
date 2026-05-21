@@ -20,6 +20,8 @@ import {
 import { formatBRL, type Product } from "@/lib/products";
 import { useCart } from "@/lib/cart-context";
 import { useFavorites } from "@/lib/favorites-context";
+import { useToast } from "@/lib/toast-context";
+import { useRouter } from "next/navigation";
 
 const reviewsBreakdown = [
   { stars: 5, pct: 78 },
@@ -30,8 +32,10 @@ const reviewsBreakdown = [
 ];
 
 export default function ProductDetail({ product }: { product: Product }) {
-  const { addProduct } = useCart();
+  const router = useRouter();
+  const { addProduct, openCart } = useCart();
   const { has: isFavorite, toggle: toggleFavorite } = useFavorites();
+  const { success, info, loading, update, dismiss, error: toastError } = useToast();
   const favored = isFavorite(product.id);
   const gallery = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image];
   const [active, setActive] = useState(0);
@@ -40,6 +44,78 @@ export default function ProductDetail({ product }: { product: Product }) {
   const [size, setSize] = useState(product.sizes?.[Math.floor((product.sizes?.length ?? 0) / 2)]);
   const [openSpecs, setOpenSpecs] = useState(true);
   const [openShipping, setOpenShipping] = useState(false);
+  const [cep, setCep] = useState("");
+  const [cepResult, setCepResult] = useState<{ days: string; price: string } | null>(null);
+  const [cepLoading, setCepLoading] = useState(false);
+
+  const handleAddToCart = () => {
+    addProduct(product.id, qty);
+    success("Adicionado à sacola", `${qty}× ${product.name}`);
+  };
+
+  const handleBuyNow = () => {
+    addProduct(product.id, qty);
+    success("Pronto para finalizar", "Itens disponíveis na sua sacola");
+    openCart();
+  };
+
+  const handleCepSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleaned = cep.replace(/\D/g, "");
+    if (cleaned.length !== 8) {
+      toastError("CEP inválido", "Digite um CEP com 8 dígitos");
+      return;
+    }
+    setCepLoading(true);
+    setCepResult(null);
+    const loadingId = loading("Calculando frete…", `CEP ${cleaned.slice(0,5)}-${cleaned.slice(5)}`);
+    setTimeout(() => {
+      const days = product.freeShipping ? "24-48h" : "3-5 dias úteis";
+      const price = product.freeShipping ? "Grátis" : "R$ 19,90";
+      setCepResult({ days, price });
+      setCepLoading(false);
+      update(loadingId, {
+        variant: "success",
+        title: "Entrega disponível",
+        description: `Chega em ${days} • ${price}`,
+        duration: 4000,
+      });
+    }, 1100);
+  };
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: product.name, text: product.brand, url });
+        return;
+      } catch {
+        // user cancelled — fall through to clipboard
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      success("Link copiado!", "Cole onde quiser para compartilhar");
+    } catch {
+      info("Link disponível na barra do navegador");
+    }
+  };
+
+  const handleReview = () => {
+    const id = loading("Abrindo formulário…");
+    setTimeout(() => {
+      update(id, {
+        variant: "info",
+        title: "Em breve",
+        description: "Avaliações pelo app estarão disponíveis em breve.",
+        duration: 4000,
+      });
+    }, 700);
+  };
+
+  // router/dismiss reserved for future flows
+  void router;
+  void dismiss;
 
   const discount =
     product.oldPrice && product.oldPrice > product.price
@@ -101,6 +177,7 @@ export default function ProductDetail({ product }: { product: Product }) {
               </button>
               <button
                 type="button"
+                onClick={handleShare}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-ink-600 shadow-soft transition-all hover:scale-110 hover:bg-brand-50 hover:text-brand-700"
                 aria-label="Compartilhar"
               >
@@ -228,7 +305,16 @@ export default function ProductDetail({ product }: { product: Product }) {
                 <p className="text-xs font-bold uppercase tracking-widest text-ink-900">
                   Tamanho: <span className="text-ink-600">{size}</span>
                 </p>
-                <button className="text-xs font-semibold text-brand-700 hover:underline">
+                <button
+                  type="button"
+                  onClick={() =>
+                    info(
+                      "Guia de tamanhos",
+                      "Tabela completa de medidas estará disponível em breve.",
+                    )
+                  }
+                  className="text-xs font-semibold text-brand-700 hover:underline"
+                >
                   Guia de tamanhos
                 </button>
               </div>
@@ -258,27 +344,56 @@ export default function ProductDetail({ product }: { product: Product }) {
               Calcular frete e prazo
             </p>
             <form
-              onSubmit={(e) => e.preventDefault()}
+              onSubmit={handleCepSubmit}
               className="mt-3 flex flex-col gap-2 sm:flex-row"
             >
               <input
                 type="text"
+                inputMode="numeric"
+                value={cep}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+                  const formatted =
+                    digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+                  setCep(formatted);
+                }}
                 placeholder="00000-000"
                 className="h-11 flex-1 rounded-xl border border-ink-200 bg-white px-4 text-sm outline-none transition-colors focus:border-brand-400"
               />
               <button
                 type="submit"
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-ink-900 px-5 text-sm font-bold text-white transition-colors hover:bg-brand-700"
+                disabled={cepLoading}
+                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-ink-900 px-5 text-sm font-bold text-white transition-colors hover:bg-brand-700 disabled:opacity-60"
               >
-                Calcular
+                {cepLoading ? "Calculando…" : "Calcular"}
               </button>
             </form>
-            <p className="mt-2 text-[11px] text-ink-500">
-              Não sei meu CEP{" "}
-              <a href="#" className="font-semibold text-brand-700 hover:underline">
-                consultar
-              </a>
-            </p>
+            {cepResult ? (
+              <div className="mt-3 rounded-xl bg-accent-50 p-3 ring-1 ring-inset ring-accent-200">
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <span className="inline-flex items-center gap-1.5 font-bold text-accent-700">
+                    <Truck className="h-3.5 w-3.5" />
+                    Entrega expressa
+                  </span>
+                  <span className="text-ink-700">
+                    Chega em <strong className="text-ink-900">{cepResult.days}</strong>
+                  </span>
+                  <span className="font-bold text-accent-700">{cepResult.price}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-2 text-[11px] text-ink-500">
+                Não sei meu CEP{" "}
+                <a
+                  href="https://buscacepinter.correios.com.br"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-brand-700 hover:underline"
+                >
+                  consultar
+                </a>
+              </p>
+            )}
           </div>
 
           {/* CTAs */}
@@ -307,7 +422,7 @@ export default function ProductDetail({ product }: { product: Product }) {
 
             <button
               type="button"
-              onClick={() => addProduct(product.id, qty)}
+              onClick={handleAddToCart}
               className="group relative inline-flex h-12 flex-1 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 text-sm font-extrabold text-white shadow-[0_14px_30px_-12px_rgba(79,70,229,0.65)] transition-all hover:scale-[1.01] hover:from-brand-500 hover:to-brand-700"
             >
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -318,6 +433,7 @@ export default function ProductDetail({ product }: { product: Product }) {
 
           <button
             type="button"
+            onClick={handleBuyNow}
             className="mt-2.5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-ink-900 px-6 text-sm font-extrabold text-white transition-all hover:bg-ink-800"
           >
             Comprar agora
@@ -471,6 +587,7 @@ export default function ProductDetail({ product }: { product: Product }) {
             </div>
             <button
               type="button"
+              onClick={handleReview}
               className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-ink-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-brand-700"
             >
               Escrever avaliação

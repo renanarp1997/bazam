@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -16,6 +17,7 @@ import {
   Truck,
   User,
 } from "lucide-react";
+import { useToast } from "@/lib/toast-context";
 
 type Mode = "login" | "signup";
 
@@ -27,8 +29,49 @@ const perks = [
 ];
 
 export default function AuthForm({ mode }: { mode: Mode }) {
+  const router = useRouter();
+  const { loading, update, info } = useToast();
   const [show, setShow] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const isLogin = mode === "login";
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    const id = loading(
+      isLogin ? "Entrando…" : "Criando sua conta…",
+      "Validando seus dados",
+    );
+    setTimeout(() => {
+      update(id, {
+        variant: "success",
+        title: isLogin ? "Bem-vindo de volta!" : "Conta criada!",
+        description: isLogin
+          ? "Você está logado na Bazam"
+          : "Seu cupom de R$ 50 já está disponível",
+        duration: 4500,
+      });
+      setSubmitting(false);
+      setTimeout(() => router.push("/"), 600);
+    }, 1400);
+  };
+
+  const handleSocial = (provider: "Google" | "Apple") => {
+    const id = loading(`Conectando com ${provider}…`);
+    setTimeout(() => {
+      update(id, {
+        variant: "info",
+        title: "Em breve",
+        description: `Login com ${provider} estará disponível em breve.`,
+        duration: 4000,
+      });
+    }, 700);
+  };
+
+  const handleForgot = () => {
+    info("Recuperar senha", "Enviamos um link de reset por e-mail (simulado).");
+  };
 
   return (
     <section className="container-page mt-6 sm:mt-10">
@@ -122,6 +165,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
             <div className="mt-6 grid gap-2 sm:grid-cols-2">
               <button
                 type="button"
+                onClick={() => handleSocial("Google")}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-ink-200 bg-white px-4 text-sm font-semibold text-ink-800 transition-all hover:border-brand-300 hover:shadow-soft"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
@@ -131,6 +175,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
               </button>
               <button
                 type="button"
+                onClick={() => handleSocial("Apple")}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-ink-200 bg-white px-4 text-sm font-semibold text-ink-800 transition-all hover:border-brand-300 hover:shadow-soft"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 text-ink-900" aria-hidden>
@@ -146,7 +191,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
               <span className="h-px flex-1 bg-ink-100" />
             </div>
 
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-3" onSubmit={handleSubmit}>
               {!isLogin && (
                 <label className="block">
                   <span className="text-xs font-semibold text-ink-700">Nome completo</span>
@@ -179,9 +224,13 @@ export default function AuthForm({ mode }: { mode: Mode }) {
                 <span className="flex items-center justify-between text-xs font-semibold text-ink-700">
                   Senha
                   {isLogin && (
-                    <a href="#" className="font-semibold text-brand-700 hover:underline">
+                    <button
+                      type="button"
+                      onClick={handleForgot}
+                      className="font-semibold text-brand-700 hover:underline"
+                    >
                       Esqueci minha senha
-                    </a>
+                    </button>
                   )}
                 </span>
                 <div className="relative mt-1.5">
@@ -226,10 +275,20 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
               <button
                 type="submit"
-                className="group mt-3 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 text-sm font-extrabold text-white shadow-[0_14px_30px_-12px_rgba(79,70,229,0.65)] transition-all hover:scale-[1.01]"
+                disabled={submitting}
+                className="group mt-3 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 text-sm font-extrabold text-white shadow-[0_14px_30px_-12px_rgba(79,70,229,0.65)] transition-all hover:scale-[1.01] disabled:cursor-wait disabled:opacity-80 disabled:hover:scale-100"
               >
-                {isLogin ? "Entrar" : "Criar minha conta"}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                {submitting ? (
+                  <>
+                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white" />
+                    {isLogin ? "Entrando…" : "Criando conta…"}
+                  </>
+                ) : (
+                  <>
+                    {isLogin ? "Entrar" : "Criar minha conta"}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </>
+                )}
               </button>
             </form>
           </motion.div>

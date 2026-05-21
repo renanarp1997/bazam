@@ -7,6 +7,8 @@ import { Eye, Heart, ShoppingBag, Star, Truck, Zap } from "lucide-react";
 import { formatBRL, type Product } from "@/lib/products";
 import { useCart } from "@/lib/cart-context";
 import { useFavorites } from "@/lib/favorites-context";
+import { useQuickView } from "@/lib/quickview-context";
+import { useToast } from "@/lib/toast-context";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=900&q=80";
@@ -14,6 +16,8 @@ const FALLBACK_IMAGE =
 export default function ProductCard({ product }: { product: Product }) {
   const { addProduct } = useCart();
   const { has: isFavorite, toggle: toggleFavorite } = useFavorites();
+  const { open: openQuickView } = useQuickView();
+  const { success } = useToast();
   const href = `/produto/${product.id}`;
   const [imgSrc, setImgSrc] = useState(product.image);
   const favored = isFavorite(product.id);
@@ -72,6 +76,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </button>
           <button
             type="button"
+            onClick={() => openQuickView(product)}
             className="inline-flex h-9 w-9 translate-x-2 items-center justify-center rounded-full bg-white/95 text-ink-600 opacity-0 shadow-soft backdrop-blur transition-all hover:bg-brand-50 hover:text-brand-700 group-hover:translate-x-0 group-hover:opacity-100"
             aria-label="Visualização rápida"
           >
@@ -142,7 +147,10 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <button
           type="button"
-          onClick={() => addProduct(product.id, 1)}
+          onClick={() => {
+            addProduct(product.id, 1);
+            success("Adicionado à sacola", product.name);
+          }}
           className="mt-auto inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-ink-900 to-ink-800 px-4 py-2.5 text-xs font-bold text-white transition-all hover:from-brand-700 hover:to-brand-600 hover:shadow-[0_12px_24px_-12px_rgba(79,70,229,0.55)]"
         >
           <ShoppingBag className="h-3.5 w-3.5" />

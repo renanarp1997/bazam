@@ -20,7 +20,9 @@ import {
   X,
 } from "lucide-react";
 import Logo from "./Logo";
+import MegaMenu from "./MegaMenu";
 import { allProducts, categories, formatBRL } from "@/lib/products";
+import { matchesQuery, normalize } from "@/lib/search";
 import { useCart } from "@/lib/cart-context";
 import { useFavorites } from "@/lib/favorites-context";
 
@@ -45,14 +47,6 @@ const quickSearches = [
   "Perfume",
 ];
 
-function normalize(s: string) {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
-}
-
 export default function Header() {
   const router = useRouter();
   const { openCart, itemsCount } = useCart();
@@ -60,22 +54,19 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const [query, setQuery] = useState("");
+  const [megaOpen, setMegaOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
 
   const suggestions = useMemo(() => {
-    const q = normalize(query);
+    const q = query.trim();
     if (!q) return { products: [], cats: [] };
+    const nq = normalize(q);
     const products = allProducts
-      .filter(
-        (p) =>
-          normalize(p.name).includes(q) ||
-          normalize(p.brand).includes(q) ||
-          normalize(p.category).includes(q),
-      )
+      .filter((p) => matchesQuery(p, q))
       .slice(0, 5);
     const cats = categories
-      .filter((c) => normalize(c.name).includes(q))
+      .filter((c) => normalize(c.name).includes(nq))
       .slice(0, 3);
     return { products, cats };
   }, [query]);
@@ -119,10 +110,24 @@ export default function Header() {
 
         <Logo />
 
-        <button className="hidden h-11 items-center gap-2 rounded-2xl border border-ink-200 bg-white px-3.5 text-sm font-semibold text-ink-800 transition-all hover:border-brand-300 hover:text-brand-700 hover:shadow-soft lg:inline-flex">
-          <Menu className="h-4 w-4 text-ink-500" />
+        <button
+          type="button"
+          onClick={() => setMegaOpen((v) => !v)}
+          aria-expanded={megaOpen}
+          aria-haspopup="true"
+          className={`hidden h-11 items-center gap-2 rounded-2xl border px-3.5 text-sm font-semibold transition-all lg:inline-flex ${
+            megaOpen
+              ? "border-brand-300 bg-brand-50 text-brand-700 shadow-soft"
+              : "border-ink-200 bg-white text-ink-800 hover:border-brand-300 hover:text-brand-700 hover:shadow-soft"
+          }`}
+        >
+          <Menu className={`h-4 w-4 ${megaOpen ? "text-brand-600" : "text-ink-500"}`} />
           Departamentos
-          <ChevronDown className="h-4 w-4 text-ink-400" />
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${
+              megaOpen ? "rotate-180 text-brand-600" : "text-ink-400"
+            }`}
+          />
         </button>
 
         <div className="hidden flex-1 md:flex">
@@ -406,6 +411,8 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
     </header>
   );
 }

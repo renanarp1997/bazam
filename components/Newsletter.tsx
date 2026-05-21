@@ -1,8 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowRight, BadgeCheck, Gift, Mail, Sparkles } from "lucide-react";
+import { useToast } from "@/lib/toast-context";
 
 export default function Newsletter() {
+  const { loading, update } = useToast();
+  const [email, setEmail] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || sending) return;
+    setSending(true);
+    const id = loading("Enviando…", "Cadastrando seu email");
+    setTimeout(() => {
+      update(id, {
+        variant: "success",
+        title: "Cupom enviado!",
+        description: `R$ 50 de desconto disponível em ${email}`,
+        duration: 5000,
+      });
+      setEmail("");
+      setSending(false);
+    }, 1200);
+  };
+
   return (
     <section className="container-page section">
       <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-700 via-brand-800 to-ink-950 p-8 text-white shadow-premium sm:p-12 lg:p-14">
@@ -45,26 +68,35 @@ export default function Newsletter() {
             </div>
           </div>
 
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex flex-col gap-3"
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="relative flex flex-col gap-3 sm:flex-row">
               <div className="relative flex-1">
                 <Mail className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" />
                 <input
                   type="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
                   className="h-[52px] w-full rounded-full border border-white/20 bg-white/10 pl-12 pr-5 text-sm text-white placeholder-white/55 outline-none backdrop-blur transition-all focus:border-white/50 focus:bg-white/15 focus:shadow-[0_0_0_4px_rgba(255,255,255,0.1)]"
                 />
               </div>
               <button
                 type="submit"
-                className="group inline-flex h-[52px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent-400 to-accent-600 px-7 text-sm font-extrabold text-ink-950 shadow-[0_18px_36px_-12px_rgba(16,185,129,0.65)] transition-all hover:scale-[1.02] hover:from-accent-300 hover:to-accent-500"
+                disabled={sending}
+                className="group inline-flex h-[52px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent-400 to-accent-600 px-7 text-sm font-extrabold text-ink-950 shadow-[0_18px_36px_-12px_rgba(16,185,129,0.65)] transition-all hover:scale-[1.02] hover:from-accent-300 hover:to-accent-500 disabled:cursor-wait disabled:opacity-80 disabled:hover:scale-100"
               >
-                Quero meu cupom
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                {sending ? (
+                  <>
+                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-ink-900/40 border-t-ink-900" />
+                    Enviando…
+                  </>
+                ) : (
+                  <>
+                    Quero meu cupom
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </>
+                )}
               </button>
             </div>
             <p className="text-[11px] text-white/60">

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Apple,
@@ -15,6 +17,7 @@ import {
   Youtube,
 } from "lucide-react";
 import Logo from "./Logo";
+import { useToast } from "@/lib/toast-context";
 
 const columns: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -67,6 +70,15 @@ const payments = ["Visa", "Master", "Elo", "Hiper", "Amex", "Pix", "Boleto"];
 const seals = ["SSL 256-bit", "Site Blindado", "LGPD", "Reclame Aqui RA1000"];
 
 export default function Footer() {
+  const { info } = useToast();
+
+  const onAppStore = () =>
+    info("App em breve", "Estamos finalizando a publicação na App Store.");
+  const onPlayStore = () =>
+    info("App em breve", "Estamos finalizando a publicação na Google Play.");
+  const onSocial = (label: string) =>
+    info(`@bazam no ${label}`, "Em breve com perfil oficial verificado.");
+
   return (
     <footer className="relative mt-20 overflow-hidden border-t border-ink-100 bg-gradient-to-b from-white via-ink-50/60 to-white pt-16">
       <div className="pointer-events-none absolute -left-32 -top-20 h-72 w-72 rounded-full bg-brand-100/40 blur-3xl" />
@@ -84,8 +96,9 @@ export default function Footer() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end lg:justify-center">
-            <Link
-              href="#"
+            <button
+              type="button"
+              onClick={onAppStore}
               className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-ink-200 bg-ink-900 px-3 py-2.5 text-white transition-all hover:scale-[1.02] sm:px-4"
             >
               <Apple className="h-5 w-5 shrink-0" />
@@ -95,9 +108,10 @@ export default function Footer() {
                 </span>
                 <span className="block text-sm font-bold">App Store</span>
               </span>
-            </Link>
-            <Link
-              href="#"
+            </button>
+            <button
+              type="button"
+              onClick={onPlayStore}
               className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-ink-200 bg-ink-900 px-3 py-2.5 text-white transition-all hover:scale-[1.02] sm:px-4"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 shrink-0" aria-hidden>
@@ -109,7 +123,7 @@ export default function Footer() {
                 </span>
                 <span className="block text-sm font-bold">Google Play</span>
               </span>
-            </Link>
+            </button>
           </div>
           <div className="flex items-center gap-4 sm:col-span-2 lg:col-span-1 lg:justify-end">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-700 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]">
@@ -163,14 +177,15 @@ export default function Footer() {
                   { Icon: Youtube, label: "YouTube", color: "hover:from-rose-500 hover:to-rose-700" },
                   { Icon: Twitter, label: "Twitter", color: "hover:from-sky-400 hover:to-sky-600" },
                 ].map(({ Icon, label, color }) => (
-                  <Link
+                  <button
                     key={label}
-                    href="#"
+                    type="button"
+                    onClick={() => onSocial(label)}
                     aria-label={label}
                     className={`group inline-flex h-10 w-10 items-center justify-center rounded-xl border border-ink-200 bg-white text-ink-600 transition-all hover:scale-110 hover:border-transparent hover:bg-gradient-to-br hover:text-white hover:shadow-soft ${color}`}
                   >
                     <Icon className="h-4 w-4" />
-                  </Link>
+                  </button>
                 ))}
               </div>
             </div>

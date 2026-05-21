@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useToast } from "@/lib/toast-context";
 import {
   ArrowRight,
   BadgeCheck,
@@ -98,6 +100,24 @@ const faq = [
 ];
 
 export default function PlusLanding() {
+  const { loading, update } = useToast();
+  const [subscribingPlan, setSubscribingPlan] = useState<string | null>(null);
+
+  const handleSubscribe = (planName: string) => {
+    if (subscribingPlan) return;
+    setSubscribingPlan(planName);
+    const id = loading("Ativando assinatura…", `Plano ${planName}`);
+    setTimeout(() => {
+      update(id, {
+        variant: "success",
+        title: "Bem-vindo ao Bazam Plus!",
+        description: `Plano ${planName} ativo. Seus benefícios já estão liberados.`,
+        duration: 5000,
+      });
+      setSubscribingPlan(null);
+    }, 1500);
+  };
+
   return (
     <>
       {/* Hero */}
@@ -279,14 +299,31 @@ export default function PlusLanding() {
 
               <button
                 type="button"
-                className={`mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-extrabold transition-all ${
+                onClick={() => handleSubscribe(p.name)}
+                disabled={subscribingPlan === p.name}
+                className={`mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-extrabold transition-all disabled:cursor-wait disabled:opacity-80 disabled:hover:scale-100 ${
                   p.accent
                     ? "bg-gradient-to-r from-brand-600 to-brand-700 text-white shadow-[0_14px_30px_-12px_rgba(79,70,229,0.65)] hover:scale-[1.01]"
                     : "border border-ink-200 bg-white text-ink-900 hover:border-brand-300"
                 }`}
               >
-                Assinar agora
-                <ArrowRight className="h-4 w-4" />
+                {subscribingPlan === p.name ? (
+                  <>
+                    <span
+                      className={`inline-block h-4 w-4 animate-spin rounded-full border-2 ${
+                        p.accent
+                          ? "border-white/60 border-t-white"
+                          : "border-ink-300 border-t-ink-900"
+                      }`}
+                    />
+                    Ativando…
+                  </>
+                ) : (
+                  <>
+                    Assinar agora
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
             </div>
           ))}
