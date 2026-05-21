@@ -157,14 +157,16 @@ export default function HelpCenter() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ex: como rastrear meu pedido?"
-                className="h-14 w-full rounded-full border border-white/10 bg-white pl-12 pr-32 text-sm text-ink-900 placeholder:text-ink-400 shadow-[0_18px_40px_-12px_rgba(0,0,0,0.35)] outline-none focus:border-white"
+                placeholder="Como rastrear meu pedido?"
+                className="h-14 w-full rounded-full border border-white/10 bg-white pl-12 pr-24 text-sm text-ink-900 placeholder:text-ink-400 shadow-[0_18px_40px_-12px_rgba(0,0,0,0.35)] outline-none focus:border-white sm:pr-32"
               />
               <button
                 type="submit"
-                className="absolute right-1.5 top-1/2 inline-flex h-11 -translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-r from-brand-600 to-brand-700 px-5 text-xs font-bold text-white shadow-[0_8px_20px_-8px_rgba(79,70,229,0.55)]"
+                aria-label="Buscar"
+                className="absolute right-1.5 top-1/2 inline-flex h-11 -translate-y-1/2 items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-brand-600 to-brand-700 px-4 text-xs font-bold text-white shadow-[0_8px_20px_-8px_rgba(79,70,229,0.55)] sm:px-5"
               >
-                Buscar
+                <Search className="h-3.5 w-3.5 sm:hidden" />
+                <span className="hidden sm:inline">Buscar</span>
               </button>
             </form>
           </div>

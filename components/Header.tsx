@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import Logo from "./Logo";
 import { allProducts, categories, formatBRL } from "@/lib/products";
+import { useCart } from "@/lib/cart-context";
+import { useFavorites } from "@/lib/favorites-context";
 
 const navCategories = [
   { name: "Ofertas do dia", href: "/ofertas", hot: true, icon: Flame },
@@ -53,6 +55,8 @@ function normalize(s: string) {
 
 export default function Header() {
   const router = useRouter();
+  const { openCart, itemsCount } = useCart();
+  const { count: favCount } = useFavorites();
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const [query, setQuery] = useState("");
@@ -298,24 +302,27 @@ export default function Header() {
             className="relative inline-flex h-11 w-11 items-center justify-center rounded-xl text-ink-700 transition-colors hover:bg-ink-100"
             aria-label="Favoritos"
           >
-            <Heart className="h-5 w-5" />
-            <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gradient-to-br from-rose-500 to-rose-700 px-1 text-[10px] font-bold text-white shadow-[0_4px_10px_-2px_rgba(244,63,94,0.55)]">
-              2
-            </span>
+            <Heart className={`h-5 w-5 ${favCount > 0 ? "fill-rose-500 text-rose-500" : ""}`} />
+            {favCount > 0 && (
+              <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gradient-to-br from-rose-500 to-rose-700 px-1 text-[10px] font-bold text-white shadow-[0_4px_10px_-2px_rgba(244,63,94,0.55)]">
+                {favCount}
+              </span>
+            )}
           </Link>
 
-          <Link
-            href="/sacola"
+          <button
+            type="button"
+            onClick={openCart}
             className="group relative inline-flex h-11 items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-800 px-3.5 text-sm font-semibold text-white shadow-[0_12px_24px_-12px_rgba(79,70,229,0.65)] transition-all hover:from-brand-500 hover:to-brand-800"
-            aria-label="Sacola"
+            aria-label="Abrir sacola"
           >
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
             <ShoppingBag className="relative h-5 w-5" />
             <span className="relative hidden sm:inline">Sacola</span>
             <span className="relative inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white px-1.5 text-[11px] font-bold text-brand-700">
-              3
+              {itemsCount}
             </span>
-          </Link>
+          </button>
         </div>
       </div>
 

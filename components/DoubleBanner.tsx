@@ -64,7 +64,7 @@ export default function DoubleBanner() {
                 </>
               )}
 
-              <div className="relative z-10 max-w-[62%]">
+              <div className="relative z-10 sm:max-w-[62%]">
                 <span
                   className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
                     isDark
@@ -76,7 +76,7 @@ export default function DoubleBanner() {
                   {b.badge}
                 </span>
                 <h3
-                  className={`mt-4 font-head text-2xl font-extrabold leading-[1.1] text-balance ${b.text} sm:text-3xl lg:text-[34px]`}
+                  className={`mt-3 font-head text-[26px] font-extrabold leading-[1.1] text-balance ${b.text} sm:mt-4 sm:text-3xl lg:text-[34px]`}
                 >
                   {b.title}
                 </h3>
@@ -87,9 +87,21 @@ export default function DoubleBanner() {
                 >
                   {b.subtitle}
                 </p>
+
+                {/* Mobile image — inline, below text */}
+                <div className="relative mt-5 h-44 w-full overflow-hidden rounded-2xl shadow-card ring-1 ring-black/10 sm:hidden">
+                  <Image
+                    src={b.image}
+                    alt=""
+                    fill
+                    sizes="(min-width:640px) 0px, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+
                 <Link
                   href={b.href}
-                  className={`mt-6 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold transition-all ${
+                  className={`mt-5 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold transition-all sm:mt-6 ${
                     isDark
                       ? "bg-white text-ink-900 shadow-[0_12px_30px_-10px_rgba(255,255,255,0.5)] hover:scale-[1.02]"
                       : "bg-ink-900 text-white shadow-[0_12px_30px_-10px_rgba(15,23,42,0.45)] hover:scale-[1.02] hover:bg-brand-700"
@@ -100,10 +112,11 @@ export default function DoubleBanner() {
                 </Link>
               </div>
 
+              {/* Desktop image — absolute corner */}
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
-                className="pointer-events-none absolute -right-4 -bottom-4 h-48 w-48 sm:-right-6 sm:-bottom-6 sm:h-60 sm:w-60"
+                className="pointer-events-none absolute -right-6 -bottom-6 hidden h-60 w-60 sm:block"
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-black/20 to-transparent blur-2xl" />
                 <Image

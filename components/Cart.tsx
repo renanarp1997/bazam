@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,56 +10,52 @@ import {
   Minus,
   Plus,
   ShieldCheck,
+  ShoppingBag,
   Tag,
   Trash2,
   Truck,
   X,
 } from "lucide-react";
-import { allProducts, formatBRL, type Product } from "@/lib/products";
-
-type Line = { product: Product; qty: number };
-
-const initialLines: Line[] = [
-  { id: "c1", qty: 1 },
-  { id: "e1", qty: 1 },
-  { id: "e5", qty: 2 },
-].flatMap(({ id, qty }) => {
-  const product = allProducts.find((p) => p.id === id);
-  return product ? [{ product, qty }] : [];
-});
+import { formatBRL } from "@/lib/products";
+import { useCart } from "@/lib/cart-context";
 
 export default function Cart() {
-  const [lines, setLines] = useState<Line[]>(initialLines);
-  const [coupon, setCoupon] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const {
+    lines,
+    updateQty,
+    removeLine,
+    subtotal,
+    coupon,
+    applyCoupon,
+    removeCoupon,
+    discount,
+    shipping,
+    total,
+  } = useCart();
 
-  const subtotal = useMemo(
-    () => lines.reduce((acc, l) => acc + l.product.price * l.qty, 0),
-    [lines],
-  );
-  const discount = appliedCoupon === "BAZAM10" ? subtotal * 0.1 : 0;
-  const shipping = subtotal > 199 ? 0 : 19.9;
-  const total = subtotal - discount + shipping;
+  const [couponInput, setCouponInput] = useState("");
+  const [couponError, setCouponError] = useState(false);
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponInput.trim()) return;
+    const ok = applyCoupon(couponInput);
+    if (ok) {
+      setCouponInput("");
+      setCouponError(false);
+    } else {
+      setCouponError(true);
+    }
+  };
+
   const installmentValue = total / 12;
-
-  const updateQty = (id: string, delta: number) =>
-    setLines((prev) =>
-      prev
-        .map((l) =>
-          l.product.id === id ? { ...l, qty: Math.max(0, l.qty + delta) } : l,
-        )
-        .filter((l) => l.qty > 0),
-    );
-
-  const removeLine = (id: string) =>
-    setLines((prev) => prev.filter((l) => l.product.id !== id));
 
   if (lines.length === 0) {
     return (
       <section className="container-page mt-8">
         <div className="rounded-3xl border border-dashed border-ink-200 bg-white p-12 text-center shadow-soft">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-ink-100 text-ink-500">
-            <Truck className="h-7 w-7" />
+            <ShoppingBag className="h-7 w-7" />
           </div>
           <h1 className="mt-4 font-head text-2xl font-extrabold text-ink-900">
             Sua sacola está vazia
@@ -231,17 +227,17 @@ export default function Cart() {
               <Tag className="h-3.5 w-3.5 text-brand-600" />
               Cupom de desconto
             </p>
-            {appliedCoupon ? (
+            {coupon ? (
               <div className="mt-3 flex items-center justify-between rounded-xl bg-accent-50 px-3 py-2 ring-1 ring-inset ring-accent-200">
                 <div className="flex items-center gap-2">
                   <BadgeCheck className="h-4 w-4 text-accent-700" />
                   <span className="text-sm font-bold text-accent-700">
-                    {appliedCoupon} aplicado (-10%)
+                    {coupon} aplicado (-10%)
                   </span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => setAppliedCoupon(null)}
+                  onClick={removeCoupon}
                   className="inline-flex h-7 w-7 items-center justify-center rounded-full text-accent-700 hover:bg-accent-100"
                   aria-label="Remover cupom"
                 >
@@ -249,34 +245,38 @@ export default function Cart() {
                 </button>
               </div>
             ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (coupon.trim().toUpperCase() === "BAZAM10") {
-                    setAppliedCoupon("BAZAM10");
-                    setCoupon("");
-                  }
-                }}
-                className="mt-3 flex gap-2"
-              >
-                <input
-                  value={coupon}
-                  onChange={(e) => setCoupon(e.target.value)}
-                  placeholder="Ex: BAZAM10"
-                  className="h-11 flex-1 rounded-xl border border-ink-200 bg-white px-3.5 text-sm outline-none focus:border-brand-400"
-                />
-                <button
-                  type="submit"
-                  className="rounded-xl bg-ink-900 px-4 text-sm font-bold text-white hover:bg-brand-700"
-                >
-                  Aplicar
-                </button>
-              </form>
+              <>
+                <form onSubmit={handleApplyCoupon} className="mt-3 flex gap-2">
+                  <input
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value);
+                      setCouponError(false);
+                    }}
+                    placeholder="Ex: BAZAM10"
+                    className={`h-11 flex-1 rounded-xl border bg-white px-3.5 text-sm outline-none focus:border-brand-400 ${
+                      couponError ? "border-rose-400" : "border-ink-200"
+                    }`}
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-ink-900 px-4 text-sm font-bold text-white hover:bg-brand-700"
+                  >
+                    Aplicar
+                  </button>
+                </form>
+                {couponError && (
+                  <p className="mt-2 text-[11px] font-semibold text-rose-600">
+                    Cupom inválido
+                  </p>
+                )}
+                <p className="mt-2 text-[11px] text-ink-500">
+                  Experimente{" "}
+                  <code className="font-mono font-bold text-brand-700">BAZAM10</code>{" "}
+                  para 10% off
+                </p>
+              </>
             )}
-            <p className="mt-2 text-[11px] text-ink-500">
-              Experimente <code className="font-mono font-bold text-brand-700">BAZAM10</code>{" "}
-              para 10% off
-            </p>
           </div>
 
           {/* Summary */}
@@ -291,7 +291,7 @@ export default function Cart() {
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-accent-700">
-                  <dt>Cupom (BAZAM10)</dt>
+                  <dt>Cupom ({coupon})</dt>
                   <dd className="font-semibold">-{formatBRL(discount)}</dd>
                 </div>
               )}

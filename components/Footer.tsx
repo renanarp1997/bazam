@@ -83,12 +83,12 @@ export default function Footer() {
               <p className="text-xs text-ink-500">Ofertas exclusivas no celular</p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:justify-end lg:justify-center">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end lg:justify-center">
             <Link
               href="#"
-              className="group inline-flex items-center gap-2.5 rounded-2xl border border-ink-200 bg-ink-900 px-4 py-2.5 text-white transition-all hover:scale-[1.02]"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-ink-200 bg-ink-900 px-3 py-2.5 text-white transition-all hover:scale-[1.02] sm:px-4"
             >
-              <Apple className="h-5 w-5" />
+              <Apple className="h-5 w-5 shrink-0" />
               <span className="text-left leading-tight">
                 <span className="block text-[9.5px] uppercase tracking-wider text-white/70">
                   Baixe na
@@ -98,9 +98,9 @@ export default function Footer() {
             </Link>
             <Link
               href="#"
-              className="group inline-flex items-center gap-2.5 rounded-2xl border border-ink-200 bg-ink-900 px-4 py-2.5 text-white transition-all hover:scale-[1.02]"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-2xl border border-ink-200 bg-ink-900 px-3 py-2.5 text-white transition-all hover:scale-[1.02] sm:px-4"
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 shrink-0" aria-hidden>
                 <path d="M3.6 2.3a1.6 1.6 0 0 0-.6 1.3v16.8c0 .5.2 1 .6 1.3l9.5-9.7L3.6 2.3Zm10.6 10.4 2.6 2.6-9.7 5.6 7.1-8.2Zm0-1.4L7.1 3.1l9.7 5.6-2.6 2.6Zm6.2-1.8-2.5-1.5-2.8 2.8 2.8 2.8 2.5-1.5c.9-.6.9-2 0-2.6Z"/>
               </svg>
               <span className="text-left leading-tight">

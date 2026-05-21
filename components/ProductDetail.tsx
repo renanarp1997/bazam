@@ -18,6 +18,8 @@ import {
   Zap,
 } from "lucide-react";
 import { formatBRL, type Product } from "@/lib/products";
+import { useCart } from "@/lib/cart-context";
+import { useFavorites } from "@/lib/favorites-context";
 
 const reviewsBreakdown = [
   { stars: 5, pct: 78 },
@@ -28,6 +30,9 @@ const reviewsBreakdown = [
 ];
 
 export default function ProductDetail({ product }: { product: Product }) {
+  const { addProduct } = useCart();
+  const { has: isFavorite, toggle: toggleFavorite } = useFavorites();
+  const favored = isFavorite(product.id);
   const gallery = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image];
   const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);
@@ -83,10 +88,16 @@ export default function ProductDetail({ product }: { product: Product }) {
             <div className="absolute right-4 top-4 flex flex-col gap-1.5">
               <button
                 type="button"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-ink-600 shadow-soft transition-all hover:scale-110 hover:bg-rose-50 hover:text-rose-600"
-                aria-label="Favoritar"
+                onClick={() => toggleFavorite(product.id)}
+                aria-pressed={favored}
+                aria-label={favored ? "Remover dos favoritos" : "Favoritar"}
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full shadow-soft transition-all hover:scale-110 ${
+                  favored
+                    ? "bg-rose-500 text-white hover:bg-rose-600"
+                    : "bg-white/95 text-ink-600 hover:bg-rose-50 hover:text-rose-600"
+                }`}
               >
-                <Heart className="h-4 w-4" />
+                <Heart className={`h-4 w-4 ${favored ? "fill-current" : ""}`} />
               </button>
               <button
                 type="button"
@@ -296,6 +307,7 @@ export default function ProductDetail({ product }: { product: Product }) {
 
             <button
               type="button"
+              onClick={() => addProduct(product.id, qty)}
               className="group relative inline-flex h-12 flex-1 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 text-sm font-extrabold text-white shadow-[0_14px_30px_-12px_rgba(79,70,229,0.65)] transition-all hover:scale-[1.01] hover:from-brand-500 hover:to-brand-700"
             >
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />

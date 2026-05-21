@@ -33,7 +33,36 @@ export default function Trending() {
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2.5">
+      {/* Mobile: horizontal scroll snap */}
+      <div className="mt-6 -mx-4 flex gap-2.5 overflow-x-auto px-4 pb-2 no-scrollbar sm:-mx-6 sm:px-6 lg:hidden">
+        {trends.map((t, i) => (
+          <motion.div
+            key={t.tag}
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3, delay: i * 0.03 }}
+            className="shrink-0"
+          >
+            <Link
+              href={`/buscar?q=${encodeURIComponent(t.tag)}`}
+              className="group inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 shadow-soft transition-all hover:border-brand-300"
+            >
+              <span className="text-ink-400 group-hover:text-brand-500">
+                #{(i + 1).toString().padStart(2, "0")}
+              </span>
+              {t.tag}
+              <span className="rounded-full bg-accent-100 px-2 py-0.5 text-[10.5px] font-bold text-accent-700">
+                {t.growth}
+              </span>
+              <ArrowUpRight className="h-3.5 w-3.5 -rotate-12 text-ink-400 transition-all group-hover:rotate-0 group-hover:text-brand-600" />
+            </Link>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Desktop: wrap */}
+      <div className="mt-6 hidden flex-wrap gap-2.5 lg:flex">
         {trends.map((t, i) => (
           <motion.div
             key={t.tag}
@@ -43,10 +72,12 @@ export default function Trending() {
             transition={{ duration: 0.35, delay: i * 0.03 }}
           >
             <Link
-              href="#"
+              href={`/buscar?q=${encodeURIComponent(t.tag)}`}
               className="group inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink-800 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 hover:shadow-lift"
             >
-              <span className="text-ink-400 group-hover:text-brand-500">#{(i + 1).toString().padStart(2, "0")}</span>
+              <span className="text-ink-400 group-hover:text-brand-500">
+                #{(i + 1).toString().padStart(2, "0")}
+              </span>
               {t.tag}
               <span className="rounded-full bg-accent-100 px-2 py-0.5 text-[10.5px] font-bold text-accent-700">
                 {t.growth}

@@ -3,6 +3,9 @@ import "./globals.css";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CartDrawer from "@/components/CartDrawer";
+import { CartProvider } from "@/lib/cart-context";
+import { FavoritesProvider } from "@/lib/favorites-context";
 
 export const metadata: Metadata = {
   title: "Bazam — Moda, tecnologia e estilo de vida",
@@ -27,10 +30,15 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-white font-sans">
-        <AnnouncementBar />
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        <CartProvider>
+          <FavoritesProvider>
+            <AnnouncementBar />
+            <Header />
+            <main>{children}</main>
+            <Footer />
+            <CartDrawer />
+          </FavoritesProvider>
+        </CartProvider>
       </body>
     </html>
   );

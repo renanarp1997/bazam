@@ -93,35 +93,35 @@ export default function FlashDeals() {
               >
               <Link
                 href={`/produto/${p.id}`}
-                className="group flex items-center gap-3 rounded-2xl border border-rose-100/80 bg-white p-3 shadow-soft transition-all hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-lift"
+                className="group flex h-full flex-col gap-3 rounded-2xl border border-rose-100/80 bg-white p-3 shadow-soft transition-all hover:-translate-y-0.5 hover:border-rose-300 hover:shadow-lift sm:flex-row sm:items-center"
               >
-                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-ink-50">
+                <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-xl bg-ink-50 sm:h-20 sm:w-20">
                   <Image
                     src={p.image}
                     alt={p.name}
                     fill
-                    sizes="80px"
+                    sizes="(min-width:640px) 80px, 50vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <span className="absolute left-1 top-1 inline-flex items-center gap-0.5 rounded-md bg-gradient-to-br from-rose-500 to-rose-700 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white shadow-[0_4px_10px_-2px_rgba(244,63,94,0.45)]">
+                  <span className="absolute left-1.5 top-1.5 inline-flex items-center gap-0.5 rounded-md bg-gradient-to-br from-rose-500 to-rose-700 px-1.5 py-0.5 text-[9.5px] font-bold uppercase text-white shadow-[0_4px_10px_-2px_rgba(244,63,94,0.45)]">
                     <Zap className="h-2.5 w-2.5" />
                     -{disc}%
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="line-clamp-2 text-xs font-semibold leading-snug text-ink-900">
+                  <h4 className="line-clamp-2 min-h-[2.4rem] text-[13px] font-semibold leading-snug text-ink-900 sm:min-h-0 sm:text-xs">
                     {p.name}
                   </h4>
-                  <p className="mt-1 text-base font-extrabold text-ink-900">
+                  <p className="mt-1 font-head text-lg font-extrabold tracking-tight text-ink-900 sm:text-base">
                     {formatBRL(p.price)}
                   </p>
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-ink-100">
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-ink-100">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-rose-500 to-amber-500"
                       style={{ width: `${stockPct}%` }}
                     />
                   </div>
-                  <p className="mt-1 text-[10.5px] font-semibold text-rose-700">
+                  <p className="mt-1 whitespace-nowrap text-[11px] font-semibold text-rose-700">
                     Apenas {Math.max(3, 30 - Math.round(stockPct / 4))} restantes
                   </p>
                 </div>
